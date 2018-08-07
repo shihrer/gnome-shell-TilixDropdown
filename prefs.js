@@ -22,7 +22,8 @@ function buildPrefsWidget() {
         GObject.TYPE_STRING,
         GObject.TYPE_STRING,
         GObject.TYPE_INT,
-        GObject.TYPE_INT
+        GObject.TYPE_INT,
+        GObject.TYPE_BOOLEAN
     ]);
 
     global.log("Modal created.");
@@ -30,7 +31,7 @@ function buildPrefsWidget() {
     let settings = Utils.getSettings();
 
     for (key in pretty_names) {
-        append_hotkey(model, settings, key, pretty_names[key]);
+        append_hotkey(model, settings, key, pretty_names[key], settings.get_boolean('show-icon'));
     }
 
     global.log("Added hotkeys to model");
@@ -75,7 +76,7 @@ function buildPrefsWidget() {
         if (!success) {
             throw new Error("Something be broken, yo.");
         }
-
+        
         let name = model.get_value(iter, 0);
 
         model.set(iter, [ 2, 3 ], [ mods, key ]);
@@ -97,6 +98,33 @@ function buildPrefsWidget() {
 
     global.log("Column two created.");
 
+    // show icon setting
+    cellrend = new Gtk.CellRendererToggle({
+        'active': settings.get_boolean('show-icon')
+    });
+
+    col = new Gtk.TreeViewColumn({
+        'title': 'Display Icon'
+    });
+    cellrend.connect('toggled', function(rend, iter) {
+        log('the show icon setting was toggled');
+        let value = !rend.get_active();
+
+        let success = false;
+        [success, iter] = model.get_iter_from_string(iter);
+        if(!success) {
+            throw new Error("Something be broken, yo.");
+        }
+
+        settings.set_boolean('show-icon', value);
+
+        model.set_value(iter, 4, value);
+        rend.set_active(value);
+    });
+    col.pack_start(cellrend, true);
+    treeview.append_column(col);
+    log("Hide icon column created.");
+
     let win = new Gtk.ScrolledWindow({
         'vexpand': true
     });
@@ -111,10 +139,10 @@ function buildPrefsWidget() {
     return win;
 }
 
-function append_hotkey(model, settings, name, pretty_name) {
+function append_hotkey(model, settings, name, pretty_name, show_icon) {
     let [key, mods] = Gtk.accelerator_parse(settings.get_strv(name)[0]);
 
-    let row = model.insert(10);
+    let row = model.insert(0);
 
-    model.set(row, [0, 1, 2, 3], [name, pretty_name, mods, key ]);
+    model.set(row, [0, 1, 2, 3, 4], [name, pretty_name, mods, key, show_icon]);
 }

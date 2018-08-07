@@ -4,5 +4,9 @@
       <default><![CDATA[['F10']]]></default>
       <summary>Key to start tilix in quake mode</summary>
     </key>
+    <key type="b" name="show-icon">
+      <default>true</default>
+      <summary>Display icon?</summary>
+    </key>
   </schema>
 </schemalist>

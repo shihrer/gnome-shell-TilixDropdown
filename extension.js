@@ -76,8 +76,8 @@ function enable() {
             );
         }
         }
-
-    // Main.panel._rightBox.insert_child_at_index(button, 0);
+    if(mySettings.get_boolean('show-icon'))
+        Main.panel._rightBox.insert_child_at_index(button, 0);
 }
 
 function disable() {
